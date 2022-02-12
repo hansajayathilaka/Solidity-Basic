@@ -18,11 +18,12 @@ contract VoteStorage {
     }
 
     modifier onlyOwner {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Permission denied.");
         _;
     }
 
-    function vote(string memory id, uint256 num) public onlyOwner {
+    function create_vote(string memory id, uint256 num) public onlyOwner {
+        require(votes[id] == 0, "This vote is duplicated.");
         votes[id] = num;
         voters.push(id);
     }
@@ -33,11 +34,11 @@ contract VoteStorage {
         }
     }
 
-    function voters_count() public view returns (uint256){
+    function voters_count() public view returns(uint256) {
         return voters.length;
     }
 
-    function retrieve(uint256 id) public view returns (uint256){
+    function get_result(uint256 id) public view returns(uint256) {
         return results[id];
     }
 }
