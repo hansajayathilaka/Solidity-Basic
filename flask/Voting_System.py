@@ -7,14 +7,28 @@ from dotenv import load_dotenv
 from web3.types import TxReceipt
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
+from flask_cors import CORS
 
+from jwt_auth import token_required
 
 load_dotenv(dotenv_path=r"C:\Users\Hansa Jayathilaka\Work\Anju Akka\Brownie\.env")
 
 initialize.main()
+cors = CORS()
 
 app = Flask(__name__)
-api = Api(app, version='1.0', title='Voting System', description='Vote calculating System')
+authorizations = {
+    'Bearer Auth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization'
+    },
+}
+api = Api(app, version='1.0', security='Bearer Auth', authorizations=authorizations, title='Voting System', description='Vote calculating System')
+cors.init_app(app)
+
+SECRET_KEY = os.getenv('SECRET_KEY') or 'secret'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 CONTRACT_NAME = 'DynamicVoteStorage'
 chain_id = int(os.getenv('CHAIN_ID'))
@@ -70,25 +84,27 @@ def get_contract():
 
 @api.route('/new_event')
 class CreateNewEvent(Resource):
-    def get(self):
+    @token_required
+    def get(self, _):
         w3, contract = get_contract()
         try:
             receipt = create_transaction(w3, contract, 'create_new_event')
             return {
                 'status': True,
                 'message': receipt.logs,
-            }
+            }, 201
         except Exception as ex:
             return {
                 'status': False,
                 'message': [str(ex)],
-            }
+            }, 400
 
 
 @api.route('/vote')
 class CreateVote(Resource):
+    @token_required
     @api.expect(Vote, validate=True)
-    def post(self):
+    def post(self, _):
         doc = json.loads(request.data)
         w3, contract = get_contract()
         try:
@@ -96,30 +112,32 @@ class CreateVote(Resource):
             return {
                 'status': True,
                 'message': receipt.logs,
-            }
+            }, 201
         except Exception as ex:
             return {
                 'status': False,
                 'message': [str(ex)],
-            }
+            }, 400
 
 
 @api.route('/get-count/<int:vote>')
 class GetVote(Resource):
-    def get(self, vote):
+    @token_required
+    def get(self, vote, _):
         _, contract = get_contract()
         count = contract.functions.get_result(vote).call()
         return {
             'status': True,
             'vote_count': count,
             'message': [],
-        }
+        }, 200
 
 
 @api.route('/summary')
 class GetSummary(Resource):
+    @token_required
     @api.expect(Competitor_List)
-    def post(self):
+    def post(self, _):
         doc = json.loads(request.data)
         _, contract = get_contract()
         results = []
@@ -140,7 +158,7 @@ class GetSummary(Resource):
             'status': True,
             'vote_summery': results,
             'message': [],
-        }
+        }, 200
 
 
 @app.errorhandler(404)

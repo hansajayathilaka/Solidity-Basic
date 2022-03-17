@@ -71,4 +71,5 @@ export ETHERSCAN_TOKEN = xxxxxxxxxxxxxxxxxxxxx # https://etherscan.io/myapikey
 export FLASK_APP = Voting_System
 export FLASK_ENV = development
 export FLASK_DEBUG = 1
+export SECRET_KEY = SecretKey
 ```
