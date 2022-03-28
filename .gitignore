@@ -1,5 +1,11 @@
-.idea
-venv
-build
+__pycache__
 .env
-ContractAddress
+.history
+.hypothesis/
+build/
+**/build
+reports/
+**/.vs
+**/.idea
+**/.vscode
+**/venv
