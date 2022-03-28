@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 from jwt_auth import token_required
 
-load_dotenv(dotenv_path=r"C:\Users\Hansa Jayathilaka\Work\Anju Akka\Brownie\.env")
+load_dotenv(dotenv_path=r"./.env")
 
 initialize.main()
 cors = CORS()
