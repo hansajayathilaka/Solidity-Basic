@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 from jwt_auth import token_required
 
-load_dotenv(dotenv_path=r"./.env")
+load_dotenv(dotenv_path=r"C:\Users\Hansa Jayathilaka\Work\Anju Akka\Brownie\.env")
 
 initialize.main()
 cors = CORS()
@@ -123,9 +123,9 @@ class CreateVote(Resource):
 @api.route('/get-count/<int:vote>')
 class GetVote(Resource):
     @token_required
-    def get(self, vote, _):
+    def get(self, *args, **kwargs):
         _, contract = get_contract()
-        count = contract.functions.get_result(vote).call()
+        count = contract.functions.get_result(kwargs['vote']).call()
         return {
             'status': True,
             'vote_count': count,
@@ -135,9 +135,9 @@ class GetVote(Resource):
 
 @api.route('/summary')
 class GetSummary(Resource):
-    @token_required
     @api.expect(Competitor_List)
-    def post(self, _):
+    @token_required
+    def post(self, *args, **kwargs):
         doc = json.loads(request.data)
         _, contract = get_contract()
         results = []
